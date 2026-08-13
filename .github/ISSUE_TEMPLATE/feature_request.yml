@@ -1,0 +1,26 @@
+name: Feature request
+description: Suggest something this package should do.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Some things are deliberately deferred — streaming, binary transfer, a
+        circuit breaker, a shipped queued job. See docs/architecture.md for why,
+        and say what changed if you think one of those calls was wrong.
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem you are solving
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you would like it to do
+    validations:
+      required: true
+  - type: textarea
+    id: workaround
+    attributes:
+      label: How you are working around it today

@@ -1,0 +1,35 @@
+# {{ name }}
+
+A Python service reached by [`laranail/python`](https://opensource.simtabi.com/documentation/laranail/python/).
+
+## Run it
+
+```bash
+python -m venv .venv && . .venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload --port {{ port }}
+```
+
+## Wire it up
+
+```php
+// config/laranail/python.php
+'services' => [
+    '{{ name }}' => [
+        'base_url' => env('PYTHON_{{ NAME }}_URL', 'http://127.0.0.1:{{ port }}'),
+    ],
+],
+```
+
+Then `php artisan laranail::python.doctor` to confirm it answers.
+
+## The three contracts
+
+| | Must be |
+|---|---|
+| `/health` | `{"status": "healthy"}` — or change `health_key`/`healthy_value` to match |
+| Callback signature | HMAC-SHA256 over `"{timestamp}.{raw_body}"`, header `X-Laranail-Signature: sha256=<hex>` |
+| Callback secret | `PYTHON_CALLBACK_SECRET`, matching `laranail.python.callbacks.secrets[0]` |
+
+Sign the **raw bytes you send**. Serialising twice — once to sign, once to send —
+is how signatures start failing for payloads containing non-ASCII.

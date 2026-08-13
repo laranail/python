@@ -1,0 +1,46 @@
+name: Bug report
+description: Something does not behave as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For anything that looks like a security issue — a way to run code outside
+        the allow-list, a secret in a log, an accepted forged callback — do not
+        open an issue. Email opensource@simtabi.com.
+  - type: input
+    id: version
+    attributes:
+      label: Package version
+    validations:
+      required: true
+  - type: input
+    id: php
+    attributes:
+      label: PHP and Laravel versions
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of `php artisan laranail::python.doctor`
+      description: Redact any URLs or credentials you would rather not share.
+      render: shell
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Smallest reproduction
+    validations:
+      required: true

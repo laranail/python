@@ -1,0 +1,14 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: max
+    paths:
+        - src
+    excludePaths:
+        - vendor
+    ignoreErrors:
+        # Generic array value types in docblocks are not enforced (laranail convention).
+        -
+            identifier: missingType.iterableValue
+    treatPhpDocTypesAsCertain: false

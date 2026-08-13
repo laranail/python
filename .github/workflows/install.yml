@@ -1,0 +1,61 @@
+name: Install
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  # Proves the published dist is usable, which the test suite cannot: tests run
+  # against the working tree, where export-ignore does not apply.
+  #
+  # This matters more here than in most packages because of stubs/. It is
+  # exactly the kind of directory a .gitattributes rule eats, and the scaffold
+  # would break for every consumer while every test stayed green.
+  install:
+    name: Install from dist
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        with:
+          php-version: '8.4'
+          extensions: dom, curl, libxml, mbstring, zip
+          coverage: none
+
+      - name: Build the dist the way Composer would
+        run: |
+          mkdir -p /tmp/dist
+          git archive HEAD | tar -x -C /tmp/dist
+
+      - name: Assert the runtime files survived export-ignore
+        run: |
+          set -e
+          for f in \
+            composer.json \
+            src/Providers/PythonServiceProvider.php \
+            config/python.php \
+            routes/callbacks.php \
+            stubs/fastapi/main.py.stub \
+            stubs/fastapi/requirements.txt.stub \
+            stubs/fastapi/README.md.stub
+          do
+            test -f "/tmp/dist/$f" || { echo "MISSING FROM DIST: $f"; exit 1; }
+          done
+          echo "All runtime files present."
+
+      - name: Assert the dev-only files did NOT ship
+        run: |
+          set -e
+          for f in tests docs phpunit.xml phpstan.neon rector.php; do
+            if [ -e "/tmp/dist/$f" ]; then echo "SHOULD NOT SHIP: $f"; exit 1; fi
+          done
+          echo "Dist is lean."
