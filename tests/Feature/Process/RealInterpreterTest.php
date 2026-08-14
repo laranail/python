@@ -39,7 +39,7 @@ final class RealInterpreterTest extends TestCase
     {
         parent::setUp();
 
-        $this->interpreter = self::locateInterpreter();
+        $this->interpreter = $this->locateInterpreter();
 
         $this->sandbox = sys_get_temp_dir() . '/laranail-python-real-' . bin2hex(random_bytes(6));
         mkdir($this->sandbox . '/scripts', 0o755, true);
@@ -112,12 +112,12 @@ final class RealInterpreterTest extends TestCase
     {
         // Heredocs here are indented for readability; Python is not forgiving
         // about that, so strip it back out.
-        $lines = array_map(static fn (string $l): string => ltrim($l), explode("\n", $body));
+        $lines = array_map(ltrim(...), explode("\n", $body));
 
         file_put_contents($this->sandbox . '/scripts/' . $name, implode("\n", $lines) . "\n");
     }
 
-    private static function locateInterpreter(): string
+    private function locateInterpreter(): string
     {
         $configured = getenv('LARANAIL_PYTHON_BIN');
 
