@@ -1,4 +1,27 @@
-# laranail/python
+# laranail/python — moved to laranail/polyglot
+
+> **This package has been renamed and this repository is archived.**
+> It is now **[`laranail/polyglot`](https://github.com/laranail/polyglot)**.
+>
+> ```diff
+> -   composer require laranail/python
+> +   composer require laranail/polyglot
+> ```
+>
+> Nothing in the transport, the allow-list, the HMAC callbacks or the replay
+> guard was ever Python-specific — the name was, and it made a package that
+> talks to any runtime look like one that talks to Python and tolerates the
+> rest. Node, Go, Rust, Java and a bare container are all first-class there.
+>
+> The migration is one namespace, one facade, one config prefix and one env
+> prefix, plus three changes that fail quietly rather than loudly — the callback
+> route prefix, the cache key namespace, and the removal of the short command
+> aliases. All of them are listed in
+> **[polyglot's UPGRADING.md](https://github.com/laranail/polyglot/blob/main/UPGRADING.md)**.
+>
+> Nothing further will be released here.
+
+---
 
 [![Latest version on Packagist](https://img.shields.io/packagist/v/laranail/python.svg)](https://packagist.org/packages/laranail/python)
 [![Tests](https://github.com/laranail/python/actions/workflows/tests.yml/badge.svg)](https://github.com/laranail/python/actions/workflows/tests.yml)
