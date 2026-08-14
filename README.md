@@ -39,9 +39,9 @@ $handle = Python::submit('fastapi:train', ['epochs' => 50], route('python.done')
 php artisan laranail::python.doctor   # every service, its TLS mode, auth, and a live probe
 ```
 
-## Documentation
+## <a name="documentation"></a>Documentation
 
-Full documentation is at **[opensource.simtabi.com/documentation/laranail/python](https://opensource.simtabi.com/documentation/laranail/python/)** — installation, getting started, configuration, the HTTP service registry, the process bridge and its security model, signed callbacks, async tasks, the commands, testing with `Python::fake()`, and the migration from `laranail/toolkit`.
+Full documentation is at **[opensource.simtabi.com/documentation/laranail/python](https://opensource.simtabi.com/documentation/laranail/python/)** — installation, getting started, configuration, the HTTP service registry, the process bridge and its security model, signed callbacks, async tasks, the commands, testing with `Python::fake()`, the migration from `laranail/toolkit`, and the release process.
 
 ## Security
 
