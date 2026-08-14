@@ -26,4 +26,7 @@ jobs:
           php-version: '8.4'
           coverage: none
       - run: composer update --prefer-dist --no-interaction --no-progress
-      - run: composer audit
+      # Packagist's advisory endpoint 502s often enough to red-build a clean
+      # repository. --ignore-unreachable keeps a fetch failure from being
+      # reported as a vulnerability; a real advisory still fails the job.
+      - run: composer audit --ignore-unreachable

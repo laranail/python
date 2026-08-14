@@ -6,6 +6,7 @@ namespace Simtabi\Laranail\Python\Process;
 
 use Closure;
 use Illuminate\Contracts\Process\ProcessResult;
+use Illuminate\Process\Exceptions\ProcessTimedOutException as LaravelProcessTimedOut;
 use Illuminate\Process\Factory as ProcessFactory;
 use Psr\Log\LoggerInterface;
 use Simtabi\Laranail\Python\Contracts\PythonProcessRunner;
@@ -20,6 +21,7 @@ use Simtabi\Laranail\Python\Support\Redactor;
 use Simtabi\Laranail\Python\ValueObjects\ProcessCall;
 use Simtabi\Laranail\Python\ValueObjects\PythonResult;
 use Simtabi\Laranail\Python\ValueObjects\ResolvedScript;
+use Symfony\Component\Process\Exception\ProcessTimedOutException as SymfonyProcessTimedOut;
 
 /**
  * Runs a registered script and reads its JSON back.
@@ -74,9 +76,37 @@ final readonly class PythonProcessRunnerService implements PythonProcessRunner
             ->env($this->environment($script))
             ->input(Json::encode($call->payload));
 
-        $result = $call->onOutput instanceof Closure
-            ? $pending->run([$script->interpreter, $script->path, ...$args], $call->onOutput)
-            : $pending->run([$script->interpreter, $script->path, ...$args]);
+        $command = [$script->interpreter, $script->path, ...$args];
+
+        try {
+            $result = $call->onOutput instanceof Closure
+                ? $pending->run($command, $call->onOutput)
+                : $pending->run($command);
+        } catch (SymfonyProcessTimedOut|LaravelProcessTimedOut) {
+            // A timeout is the expected outcome of a hung script, not an
+            // exceptional one — it is the reason the clamp exists. Letting
+            // Symfony's exception escape makes every caller wrap run() in a
+            // try/catch for a vendor class, and makes the timeout the one
+            // failure mode that does not arrive as a PythonResult.
+            //
+            // Both classes, because they are unrelated types and which one
+            // surfaces depends on the path taken: Laravel's extends
+            // RuntimeException and does not inherit from Symfony's, so catching
+            // either alone leaves the other escaping.
+            //
+            // The message is rebuilt rather than reused: the vendor exception
+            // embeds the full command line, which names the interpreter and
+            // script path verbatim.
+            return new PythonResult(
+                ok: false,
+                error: ErrorCode::Timeout,
+                message: $redactor->tail(
+                    "The [{$script->name}] script exceeded its {$timeout}s timeout.",
+                    $this->config->int('process.stderr_max_chars', 2000),
+                ),
+                via: Transport::Process,
+            );
+        }
 
         return $this->interpret($script, $result, $redactor);
     }
